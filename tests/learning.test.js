@@ -1,3 +1,4 @@
+import {initExtras,logPass,logCheck,practiceDays,wordStatus,awardBlock,dayKey} from '../progress.js';
 import {createGame,choicesFor,completeWord,beginReview,nextBlock} from '../game.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -64,17 +65,59 @@ test('game includes ALL lists and ALL 34 words, in ten-word blocks with last blo
  }
  assert.equal(g.completed,34);assert.equal(new Set(seen).size,34);assert.equal(seen.length,34);assert.equal(g.words.length,4);
 });
-test('only mistaken words repeat, AFTER the first ten, through the same learning steps; repeat ends',()=>{
+test('mistaken words repeat after ten and keep repeating until BOTH skills are clean',()=>{
  const words=initial().lists[0].words,g=createGame(words,()=>.9999);
  for(let i=0;i<10;i++){assert.equal(g.repeat,false);g.wordFailed=i===1||i===4;completeWord(g);}
  assert.equal(g.phase,'review-ready');assert.equal(g.completed,10);
  assert.deepEqual(g.mistakes.map(w=>w.id),[words[1].id,words[4].id]);
  beginReview(g);assert.equal(g.phase,'learn');assert.equal(g.words.length,2);assert.equal(g.repeat,true);
  g.wordFailed=true;completeWord(g);assert.equal(g.phase,'learn');completeWord(g);
- assert.equal(g.phase,'block-end');assert.equal(g.reviewed,2);assert.equal(g.completed,10);
+ assert.equal(g.phase,'review-ready');assert.equal(g.blockClean,false);assert.equal(g.reviewed,2);assert.equal(g.completed,10);
+ assert.deepEqual(g.mistakes.map(w=>w.id),[words[1].id]);beginReview(g);completeWord(g);assert.equal(g.phase,'block-end');assert.equal(g.blockClean,true);
  nextBlock(g);assert.equal(g.phase,'learn');assert.equal(g.words[0].id,words[10].id);assert.equal(g.mistakes.length,0);
 });
 test('four distinct choices contain only one valid translation, including synonym overlaps',()=>{
  const words=initial().lists[0].words;
  for(const word of words){const options=choicesFor(word,words,()=>.5);assert.equal(options.length,4);assert.equal(new Set(options).size,4);assert.equal(options.filter(v=>[word.nl,...word.alts].includes(v)).length,1);assert.ok(options.includes(word.nl));}
+});
+
+
+test('gifts require 100% in both skills including every retry; duplicate claims, failed/stopped blocks cannot farm gifts',()=>{
+ const s=initExtras(initial()),words=s.lists[0].words,g=createGame(words,()=>.9999),now=Date.UTC(2026,9,29,10);
+ assert.equal(awardBlock(s,g,now),null);
+ for(let i=0;i<10;i++){g.wordFailed=i===0;completeWord(g);}
+ assert.equal(awardBlock(s,g,now),null);beginReview(g);g.wordFailed=true;completeWord(g);
+ assert.equal(g.phase,'review-ready');assert.equal(awardBlock(s,g,now),null);
+ beginReview(g);completeWord(g);assert.equal(g.blockClean,true);
+ assert.equal(awardBlock(s,g,now).name,'Poeks koptelefoon');assert.equal(awardBlock(s,g,now),null);
+ assert.equal(awardBlock(s,g,now+86400000).name,'Paarse gitaar');
+});
+test('new block and final short block each get a gift, daily collection has a finite cap',()=>{
+ const s=initExtras(initial()),words=s.lists[0].words,g=createGame(words,()=>.9999),now=Date.UTC(2026,9,29,10);
+ while(g.phase!=='end'){while(g.phase==='learn')completeWord(g);assert.ok(awardBlock(s,g,now));if(g.phase==='block-end')nextBlock(g);}
+ assert.equal(s.studio.awards.length,4);assert.equal(s.studio.awards[3].wordIds.length,4);
+ const other=createGame(words,()=>.3);for(let i=0;i<10;i++)completeWord(other);
+ assert.equal(awardBlock(s,other,now),null);
+});
+test('clean practice tracks repeats separately from days; failures and historical counters never inflate retention',()=>{
+ const s=initExtras(initial()),now=Date.UTC(2026,9,29,10);
+ s.progress['school-0:guided-english']={attempts:100};assert.equal(s.practice['school-0'],undefined);
+ logPass(s,'x',false,now);for(let i=0;i<4;i++)logPass(s,'x',true,now+i*1000);
+ assert.equal(s.practice.x.goodPasses,4);assert.equal(s.practice.x.cleanDays.length,1);assert.equal(s.practice.x.recallDays.length,0);
+ logPass(s,'x',true,now+86400000);assert.equal(s.practice.x.cleanDays.length,2);
+ assert.notEqual(wordStatus(s.practice.x),'Zelf onthouden');
+});
+test('only delayed correct unaided checks on three different days prove retention; hints and immediate retries do not',()=>{
+ const s=initExtras(initial()),now=Date.UTC(2026,9,29,10);
+ logPass(s,'x',true,now);assert.equal(logCheck(s,'x',true,false,now+1000).counted,false);
+ logCheck(s,'x',true,true,now+2000);assert.equal(s.practice.x.recallDays.length,0);
+ for(let day=1;day<=3;day++)logCheck(s,'x',true,false,now+day*86400000+3000);
+ assert.equal(s.practice.x.recallDays.length,3);assert.equal(wordStatus(s.practice.x),'Zelf onthouden');
+ logCheck(s,'x',false,false,now+4*86400000);assert.equal(wordStatus(s.practice.x),'Nog oefenen');
+ assert.equal(logCheck(s,'x',true,false,now+4*86400000+1000).counted,false);assert.equal(wordStatus(s.practice.x),'Nog oefenen');
+});
+test('day boundaries use Amsterdam time and legacy data survives initialization',()=>{
+ const s=initial();s.rewards=['2026-10-28'];const before=JSON.stringify(s.progress);initExtras(s);
+ assert.equal(s.examDate,'2026-11-06');assert.deepEqual(s.rewards,['2026-10-28']);assert.equal(JSON.stringify(s.progress),before);
+ assert.equal(dayKey(Date.UTC(2026,10,1,23,30)),'2026-11-02');assert.equal(practiceDays({cleanDays:['a','b'],recallDays:['b','c']}),3);
 });

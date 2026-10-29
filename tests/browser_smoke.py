@@ -60,6 +60,9 @@ with sync_playwright() as p:
     for i in range(2):review_seen.append(do_word(skip_audio=i==1))
     assert review_seen==main_seen[:2]
     assert page.locator('#next-block').count()==1
+    page.get_by_role('button',name='Muziekstudio',exact=True).click()
+    page.locator('#resume').click()
+    assert page.locator('#next-block').count()==1
     page.locator('#next-block').click()
     for i in range(3):main_seen.append(do_word())
     assert len(set(main_seen))==13
