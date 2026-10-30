@@ -7,7 +7,7 @@ with sync_playwright() as p:
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.add_init_script('''
       Object.defineProperty(crypto,'randomUUID',{value:undefined});
-      speechSynthesis.speak=()=>{}; // deliberately no onstart/onend: regression for the actual blocker
+      window.SpeechSynthesisUtterance=class{constructor(text){this.text=text;}};speechSynthesis.getVoices=()=>[{name:'Flo',lang:'en-GB',voiceURI:'flo',localService:true}];speechSynthesis.speak=u=>{window.lastSpoken=u;if(window.audioMode==='stall')return;if(window.audioMode==='error'){u.onerror?.();return;}u.onstart?.();setTimeout(()=>u.onend?.(),400);};
       window.micRequests=0;
       if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=()=>{window.micRequests++;throw Error('No microphone');};
     ''')
@@ -22,10 +22,16 @@ with sync_playwright() as p:
         nl=page.locator('.word-pair .word').nth(1).inner_text()
         assert page.locator('#learned').is_disabled()
         if skip_audio:
+            page.evaluate("window.audioMode='error'")
+            page.locator('#listen').click();page.clock.run_for(50)
+            page.once('dialog',lambda d:d.accept())
             page.locator('#audio-skip').click()
+            page.evaluate("window.audioMode='ok'")
         else:
             page.locator('#listen').click()
-            assert page.locator('#learned').is_enabled() # no speech event emitted!
+            assert page.locator('#learned').is_disabled()
+            page.clock.run_for(500)
+            assert page.locator('#learned').is_enabled()
             page.locator('#learned').click()
         assert page.locator('[data-choice]').count()==4
         assert page.locator('.word').inner_text()==en
@@ -83,9 +89,9 @@ with sync_playwright() as p:
     page.screenshot(path='/tmp/poek-game-home.png',full_page=True)
     page.set_viewport_size({'width':390,'height':844})
     page.get_by_role('button',name='Spelen',exact=False).click()
-    page.locator('#audio-skip').click()
+    page.locator('#listen').click();page.clock.run_for(500);page.locator('#learned').click()
     page.screenshot(path='/tmp/poek-game-mobile.png',full_page=True)
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     assert errors==[],errors
-    print('PASS: full 13-word game; ALL lists; ten-word block; wrong MC retries before typing; typing errors; exactly two review words; next block; no audio events; Enter/touch guards; persistence and list import; mobile; no microphone')
+    print('PASS: full 13-word game; ALL lists; ten-word block; wrong MC retries before typing; typing errors; exactly two review words; next block; completed audio gate; Enter/touch guards; persistence and list import; mobile; no microphone')
     browser.close()

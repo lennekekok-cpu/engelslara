@@ -1,7 +1,7 @@
 export const TEST_DATE='2026-11-06';
 export const dayKey=(now=Date.now())=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Amsterdam',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
 export const gifts=[['🎧','Poeks koptelefoon'],['🎸','Paarse gitaar'],['🔊','Studiospeakers'],['🥁','Drumstel'],['🎹','Keyboard'],['🪩','Discobal'],['💿','Platenverzameling'],['💡','Podiumlamp'],['🎼','Muziekstandaard'],['⭐','Sterrenposter'],['🎷','Saxofoon'],['🛋️','Chillbank']];
-export function initExtras(state){state.practice??={};state.studio??={awards:[]};state.examDate??=state.lists.find(l=>l.id==='school-unit1')?.date||TEST_DATE;return state;}
+export function initExtras(state){state.effects??={sound:true,confetti:true};state.voice??={uri:'',pitch:1.3};state.studio??={awards:[]};state.studio.opened??=[];state.studio.equipped??='base';state.practice??={};state.studio??={awards:[]};state.examDate??=state.lists.find(l=>l.id==='school-unit1')?.date||TEST_DATE;return state;}
 export function logPass(state,id,clean,now=Date.now()){
  initExtras(state);const p=state.practice[id]??={passes:0,goodPasses:0,cleanDays:[],recallDays:[]};
  p.passes++;p.lastPassClean=clean;p.lastExample=now;if(!clean&&p.recallDays.length)p.needsRecall=true;

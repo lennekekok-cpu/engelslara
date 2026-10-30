@@ -4,14 +4,14 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
  page=b.new_page(viewport={'width':1280,'height':950})
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.add_init_script('speechSynthesis.speak=()=>{}')
+ page.add_init_script("window.SpeechSynthesisUtterance=class{constructor(text){this.text=text;}};speechSynthesis.getVoices=()=>[{name:'Flo',lang:'en-GB',voiceURI:'flo',localService:true}];speechSynthesis.speak=u=>{window.lastSpoken=u;if(window.audioMode==='stall')return;if(window.audioMode==='error'){u.onerror?.();return;}u.onstart?.();setTimeout(()=>u.onend?.(),400);};")
  page.goto('http://127.0.0.1:3000')
  page.evaluate('''localStorage.setItem('lara-woordentuin-v1',JSON.stringify({version:1,lists:[{id:'l',name:'Testwoorden',date:'',active:true,words:Array.from({length:10},(_,i)=>({id:'w'+i,en:'word'+i,nl:'betekenis'+i,alts:[],enAlts:[]}))}],progress:{},rewards:['2026-10-20']}));''')
  page.reload();page.clock.install()
  def storage(): return page.evaluate('JSON.parse(localStorage.getItem("lara-woordentuin-v1"))')
  def word(fail=False):
   en=page.locator('.word-pair .word').nth(0).inner_text();nl=page.locator('.word-pair .word').nth(1).inner_text()
-  page.locator('#listen').click();page.locator('#learned').click()
+  page.locator('#listen').click();page.clock.run_for(500);page.locator('#learned').click()
   for el in page.locator('[data-choice]').all():
    if el.evaluate('(el)=>el.childNodes[1].textContent')==nl:el.click();break
   page.clock.run_for(500);page.locator('#to-type').click()
@@ -28,6 +28,10 @@ with sync_playwright() as p:
  assert page.locator('.gift-card').count()==1
  page.get_by_role('button',name='Muziekstudio',exact=True).click()
  assert 'Poeks koptelefoon' in page.locator('main').inner_text()
+ page.locator('[data-open]').click()
+ assert page.locator('.collection-card.equipped').count()==1
+ assert len(storage()['studio']['opened'])==1
+ assert page.locator('.stage-pet .fancy-poek').count()==1
  page.screenshot(path='/tmp/poek-studio-new.png',full_page=True)
  page.reload()
  assert len(storage()['studio']['awards'])==1

@@ -1,3 +1,4 @@
+import {childlikeVoice,comparison} from '../experience.js';
 import {initExtras,logPass,logCheck,practiceDays,wordStatus,awardBlock,dayKey} from '../progress.js';
 import {createGame,choicesFor,completeWord,beginReview,nextBlock} from '../game.js';
 import {test} from 'node:test';
@@ -120,4 +121,27 @@ test('day boundaries use Amsterdam time and legacy data survives initialization'
  const s=initial();s.rewards=['2026-10-28'];const before=JSON.stringify(s.progress);initExtras(s);
  assert.equal(s.examDate,'2026-11-06');assert.deepEqual(s.rewards,['2026-10-28']);assert.equal(JSON.stringify(s.progress),before);
  assert.equal(dayKey(Date.UTC(2026,10,1,23,30)),'2026-11-02');assert.equal(practiceDays({cleanDays:['a','b'],recallDays:['b','c']}),3);
+});
+
+
+test('sentence placeholders and punctuation never fail a correct phrase, real missing words still do',()=>{
+ const w={en:'What does ... look like?',nl:'Hoe ziet ... eruit?',alts:[],enAlts:[]};
+ for(const answer of ['What does .. look like?','What does … look like','what does look like',' What does . look like?  '])assert.equal(assess(w,'nl-en',answer),'correct');
+ assert.notEqual(assess(w,'nl-en','what look like'),'correct');
+ assert.equal(assess({en:'What colour ...?',nl:'Welke kleur?',alts:[]},'nl-en','What colour?'),'correct');
+ assert.equal(assess({en:'sad',nl:'verdrietig',alts:[]},'nl-en',' SAD?  '),'correct');
+});
+test('light English voice preferences and an explicit parent choice override low defaults',()=>{
+ const voices=[{name:'Daniel',lang:'en-GB',voiceURI:'d'},{name:'Samantha',lang:'en-US',voiceURI:'s'},{name:'Flo',lang:'en-GB',voiceURI:'f'},{name:'Dutch',lang:'nl-NL',voiceURI:'n'}];
+ assert.equal(childlikeVoice(voices).name,'Flo');assert.equal(childlikeVoice(voices,'s').name,'Samantha');assert.equal(childlikeVoice([]),null);
+});
+test('comparison preserves the typed answer, highlights missing letters and escapes HTML',()=>{
+ const c=comparison('frendly','friendly');assert.ok(c.expected.includes('<mark>i</mark>'));assert.equal(c.typed,'frendly');
+ assert.ok(!comparison('<script>','cat').typed.includes('<script>'));
+ assert.ok(!comparison('What does .. lok like?','What does ... look like?').expected.includes('<mark>.</mark>'));
+ assert.deepEqual(comparison('What colour..','What colour ...?',true),{typed:'What colour..',expected:'What colour ...?'});
+});
+test('all words remain included but difficult sentence templates come last',()=>{
+ const words=initial().lists[0].words,g=createGame(words,()=>.3);assert.equal(g.deck.length,34);
+ assert.ok(g.deck.slice(-3).every(w=>w.en.includes('...')));assert.ok(g.deck.slice(0,10).every(w=>!w.en.includes('...')));
 });

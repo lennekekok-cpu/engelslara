@@ -16,11 +16,11 @@ Er zijn geen npm-afhankelijkheden. De server gebruikt poort 3000, of `PORT`. Geb
 
 ## Spelverloop
 
-Tijdens **Spelen** doen alle woorden uit alle lijsten mee, ook lijsten die in een eerdere versie waren uitgeschakeld. De volgorde wordt per spel geschud. Ieder woord krijgt drie stappen:
+Tijdens **Spelen** doen alle woorden uit alle lijsten mee, ook lijsten die in een eerdere versie waren uitgeschakeld. De volgorde wordt per spel geschud; de drie moeilijkere schoolzinnetjes met invulpuntjes komen na de losse woorden. Ieder woord krijgt drie stappen:
 
-1. Het Engelse en Nederlandse woord staan naast elkaar. Druk op **Luister** of **Langzamer** en daarna op **Verder**.
+1. Het Engelse en Nederlandse woord staan naast elkaar. Druk op **Luister** of **Langzamer**. **Verder** blijft uit totdat de uitspraak helemaal is afgespeeld.
 2. Alleen het Engelse woord staat in beeld. Kies de Nederlandse betekenis uit vier mogelijkheden. Bij een fout mag je een andere optie proberen. Na het goede antwoord komt de stap om zelf te typen.
-3. Alleen het Nederlandse woord staat in beeld. Typ het Engelse woord. Hoofdletters, extra spaties en afsluitende vraagtekens/punten worden genegeerd. Ingestelde Engelse alternatieven worden geaccepteerd. Een spelfout telt als fout, met een aparte melding als het antwoord op het juiste woord lijkt. ‘Ik weet het nog niet’ toont het antwoord en markeert het woord voor herhaling.
+3. Alleen het Nederlandse woord staat in beeld. Typ het Engelse woord. Hoofdletters, extra spaties, invulpuntjes (één, twee, drie of …) en afsluitende vraagtekens worden genegeerd. Bij de zinnetjes vertelt de app expliciet dat puntjes en het vraagteken niet overgetypt hoeven te worden. Ingestelde Engelse alternatieven worden geaccepteerd. Een echte spelfout telt als fout, met een aparte melding als het antwoord op het juiste woord lijkt. Na elk geschreven antwoord staan ‘Jij schreef’ en ‘Zo schrijf je het’ naast elkaar (op smalle telefoons onder elkaar). Afwijkende letters worden gemarkeerd; geaccepteerde puntjes worden niet als fout gemarkeerd. Dit werkt ook bij de zelfcheck. ‘Ik weet het nog niet’ toont het antwoord en markeert het woord voor herhaling.
 
 Na tien woorden worden uitsluitend de woorden met minstens één fout in kiezen of typen opnieuw geoefend, in dezelfde drie stappen. Woorden met een fout in de herhaling gaan opnieuw mee, totdat ieder woord in een poging zowel bij kiezen als typen helemaal goed is. Pas dan is het blok 100% afgerond en verschijnt een studiocadeau. Stoppen blijft altijd mogelijk. De schoollijst gaat in blokken van 10, 10, 10 en 4; ook het laatste kleine blok krijgt een cadeau.
 
@@ -28,13 +28,21 @@ Elk uniek blok kan één cadeau per Amsterdamse kalenderdag geven. De daglimiet 
 
 Bij korte eigen lijsten worden de antwoordopties aangevuld met Nederlandse betekenissen uit de meegeleverde schoollijst. Opties zijn verschillend en vermijden ingestelde synoniemen van het goede antwoord als afleider. Er is geen tijdsdruk; stoppen kan op elk moment.
 
-## Audio zonder blokkade
+## Stem, luisteren en korte feestjes
 
-Het apparaat gebruikt de Engelse browserstem, bij voorkeur Brits Engels. De beschikbaarheid en geluidskwaliteit verschillen per apparaat; het besturingssysteem kan hiervoor internet gebruiken.
+De app kiest bij voorkeur een lichte vrouwelijke Engelse apparaatstem en gebruikt standaard toonhoogte 1,3 en normaal tempo 0,92. Dit is geen gegarandeerd echte kinderstem: de beschikbare stemmen worden door iOS/het besturingssysteem bepaald. Bij Ouders kun je een Engelse stem kiezen, beluisteren en de toonhoogte tussen 1 en 1,6 aanpassen. Voorkeuren worden opgeslagen. De browser kan voor bepaalde stemmen internet nodig hebben. De stem wordt pas gekozen nadat de stemmenlijst is geladen (of na maximaal 1,2 seconden wachten).
 
-**Verder** wordt ingeschakeld zodra op een luisterknop is gedrukt. De app wacht niet op een browsermelding dat het geluid is gestart of afgelopen: die melding kwam op sommige apparaten niet binnen en blokkeerde het oefenen. Bij ontbrekende audio is er ook een directe knop **Geen geluid? Verder zonder audio**. Dat omzeilt geen toets; het hele spel is oefenen met voorbeelden. Na uiterlijk tien seconden vastgelopen audio verschijnt een melding. Er wordt nooit microfoontoegang gevraagd of opgenomen.
+**Verder** gaat uitsluitend aan na het `end`-signaal van de uitspraak. Ook tijdens opnieuw luisteren staat de knop tijdelijk uit. Er is geen zichtbare normale overslaanknop. Bij een echte fout, onderbreking, ontbrekende spraaksynthese of een time-out (8–25 seconden, afhankelijk van tekstlengte) blijft Verder uit en verschijnt een bevestigde ouderroute ‘Ouder: geluid werkt niet’. Een ouder kan dan bewust zonder audio verder. Hierdoor is volledig afluisteren de normale route en is er toch een uitweg bij technische problemen. Dit is geen beveiligde ouder-PIN en de app kan niet controleren of het toestelvolume hoorbaar is.
 
-Feedback en het doorgaan zijn aparte stappen. De vervolgknop wordt na 450 ms actief. Herhaald Enter en dubbelklikken slaan geen feedback over. Er wordt niet gewacht op mogelijk gemiste pointerup/keyup-gebeurtenissen. Sessies en lijstbeheer werken ook zonder `crypto.randomUUID`.
+Er wordt nooit microfoontoegang gevraagd of opgenomen. Luisteraudio begint alleen met de luisterknop. Correct kiezen, correct typen en een cadeau uitpakken geven korte confetti en een zacht, lokaal gesynthetiseerd klap/applausgeluid. De effecten wijzigen geen leerresultaten en blokkeren geen knoppen. **Applaus aan/uit** staat bovenaan; confetti kan bij Ouders uit. Verminderde beweging van het apparaat wordt gerespecteerd. Applaus stopt vóór luisteraudio begint. Achtergrondmuziek blijft afwezig.
+
+Feedback en het doorgaan zijn aparte stappen. De vervolgknop wordt na 450 ms actief. Herhaald Enter en dubbelklikken slaan geen feedback over. Sessies en lijstbeheer werken ook zonder `crypto.randomUUID`.
+
+## Poekies magische backstage
+
+Poekie heeft een eigen getekende avatar met glansogen, zachte kleuren en subtiele animatie. Na een foutloos afgerond blok verschijnt een ingepakte verrassing die Lara zelf kan uitpakken. Het is geen emoji-beloning: koptelefoon, gitaar en de andere studio-items hebben eigen vectorillustraties. Na uitpakken kun je items in de studio kiezen; de koptelefoon draagt Poekie op haar hoofd en de gitaar bij haar lijf. Andere items veranderen haar studio-look en staan op het podium.
+
+Reeds verdiende cadeaus blijven behouden en kunnen met de nieuwe vormgeving worden uitgepakt. De gekozen look en uitgepakte cadeaus blijven na herladen beschikbaar. De bestaande voorwaarden (helemaal goed, maximaal één keer per gelijk blok per dag en een begrensde dagelijkse collectie) blijven gelden. Er zijn geen kosten, aankopen of verloren levens.
 
 ## Voortgang en privacy
 
@@ -61,7 +69,7 @@ npm test
 npm run bundle
 ```
 
-De veertien leerregeltests omvatten de volledige dekking van alle 34 woorden, blokken van tien met een laatste blok van vier, herhaling van uitsluitend fout beantwoorde woorden, vier unieke antwoordopties, behoud van gegevens en de eerdere leerregels.
+De achttien leerregeltests omvatten de volledige dekking van alle 34 woorden, blokken van tien met een laatste blok van vier, herhaling van uitsluitend fout beantwoorde woorden, vier unieke antwoordopties, behoud van gegevens en de eerdere leerregels.
 
 Met een draaiende server, Python Playwright en Chromium op `/usr/bin/chromium`:
 
@@ -69,11 +77,12 @@ Met een draaiende server, Python Playwright en Chromium op `/usr/bin/chromium`:
 python3 tests/browser_smoke.py
 python3 tests/standalone_smoke.py
 python3 tests/rewards_smoke.py
+python3 tests/experience_smoke.py
 ```
 
-De browsertests spelen een heel spel van 13 woorden door: tien woorden, twee foutwoorden herhalen, daarna de laatste drie. Ook een eerder uitgeschakelde lijst doet mee. Ze controleren de drie stappen, invoer, gegevensbehoud, nieuwe lijsten, mobiel formaat, ingedrukt Enter, gemiste aanraakacties, ontbrekende UUID-ondersteuning en falende/stagnerende audio zonder blokkerende vervolgknop. Audio-events worden gesimuleerd; de geluidskwaliteit moet op het doelapparaat worden beluisterd. De zelfstandige HTML wordt via HTTP getest omdat file:// door het cloudbrowserbeleid is geblokkeerd.
+De browsertests spelen een heel spel van 13 woorden door: tien woorden, twee foutwoorden herhalen, daarna de laatste drie. Ook een eerder uitgeschakelde lijst doet mee. Ze controleren de drie stappen, invoer, gegevensbehoud, nieuwe lijsten, mobiel formaat, ingedrukt Enter, gemiste aanraakacties, ontbrekende UUID-ondersteuning, verplicht volledig afluisteren, een bevestigde ouderroute bij falende/stagnerende audio, antwoordvergelijking, spellingtolerantie, confetti/applaus en uitpakken/aankleden met oude cadeaus. Audio-events worden gesimuleerd; de geluidskwaliteit moet op het doelapparaat worden beluisterd. De zelfstandige HTML wordt via HTTP getest omdat file:// door het cloudbrowserbeleid is geblokkeerd.
 
-Bronnen: `app.js` voor de schermen, `game.js` voor blokken/herhaling/antwoordopties, `progress.js` voor studiocadeaus en oefen-/zelfcheckdagen, `learning.js` voor antwoorden en voortgang, `data.js` voor de schoollijst. `npm run bundle` werkt `lara.html` bij.
+Bronnen: `app.js` voor de schermen, `game.js` voor blokken/herhaling/antwoordopties, `progress.js` voor studiocadeaus en oefen-/zelfcheckdagen, `experience.js` voor illustraties/stemkeuze/antwoordvergelijking, `celebration.js` voor optionele feestjes, `learning.js` voor antwoorden en voortgang, `data.js` voor de schoollijst. `npm run bundle` werkt `lara.html` bij.
 
 ## Openbare website (GitHub Pages)
 

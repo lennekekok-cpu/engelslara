@@ -1,5 +1,5 @@
 export const skills=['listen'];
-export const normalize=s=>s.toLowerCase().trim().replace(/\s+/g,' ').replace(/[?.!]+$/,'').trim();
+export const normalize=s=>s.toLowerCase().replace(/[‘’]/g,"'").replace(/[.…]+/g,' ').trim().replace(/[?!]+$/,'').trim().replace(/\s+/g,' ');
 export function distance(a,b){const row=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j];row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]!==b[j-1]));prev=old;}}return row[b.length];}
 export function assess(word,skill,input){const answers=((skill==='en-nl'||skill==='listen')?[word.nl,...word.alts]:[word.en,...(word.enAlts||[])]).map(normalize);const value=normalize(input);if(answers.includes(value))return 'correct';if(value.length>=4&&answers.some(a=>distance(value,a)===1))return 'typo';return 'wrong';}
 export function record(state,id,skill,result,help,session,now=Date.now()){
